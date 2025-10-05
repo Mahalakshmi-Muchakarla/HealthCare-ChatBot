@@ -1,0 +1,144 @@
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #e9f0f7; /* Very light, cool background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+}
+
+.chat-container {
+    width: 100%;
+    max-width: 500px;
+    height: 80vh;
+    background-color: #ffffff;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+header {
+    background-color: #3b5998; /* Professional Blue theme */
+    color: white;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.header-title {
+    margin: 0 0 5px 0;
+    font-weight: 600;
+}
+
+header p {
+    margin: 0;
+    font-size: 0.9em;
+    opacity: 0.8;
+}
+
+.chat-history {
+    flex-grow: 1;
+    padding: 20px;
+    overflow-y: auto;
+    background-color: #f7f9fc;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+/* Scrollbar styling for a cleaner look */
+.chat-history::-webkit-scrollbar {
+    width: 6px;
+}
+.chat-history::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 3px;
+}
+
+.message {
+    padding: 12px 18px;
+    border-radius: 20px;
+    margin-bottom: 15px;
+    max-width: 85%;
+    line-height: 1.5;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+/* User Messages */
+.user-message {
+    background-color: #d1e7ff; /* Light Blue for user */
+    color: #004085;
+    margin-left: auto;
+    border-bottom-right-radius: 5px;
+}
+
+/* Bot Messages */
+.bot-message {
+    background-color: #e2f0d9; /* Light Green for bot */
+    color: #155724;
+    margin-right: auto;
+    border-bottom-left-radius: 5px;
+}
+
+/* --- ADDED RULES FOR HTML CONTENT --- */
+
+/* Styles for <ol> and <ul> inside messages */
+.message ol, .message ul {
+    padding-left: 25px; 
+    margin-top: 10px;
+    margin-bottom: 0;
+}
+
+/* Styles for <li> items inside messages */
+.message li {
+    margin-bottom: 5px;
+}
+
+/* Styles for <b> and <strong> tags inside messages (like disease names) */
+.message b, .message strong {
+    font-weight: 700; 
+}
+
+/* ----------------------------------- */
+
+.chat-input {
+    display: flex;
+    padding: 15px;
+    background-color: #fff;
+}
+
+.chat-input input[type="text"] {
+    flex-grow: 1;
+    padding: 12px;
+    border: 1px solid #ced4da;
+    border-radius: 25px;
+    margin-right: 10px;
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+.chat-input input[type="text"]:focus {
+    border-color: #3b5998;
+}
+
+.chat-input button {
+    background-color: #3b5998; 
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.3s;
+}
+
+.chat-input button:hover {
+    background-color: #2b4478;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}

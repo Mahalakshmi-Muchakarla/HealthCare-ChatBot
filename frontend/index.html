@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Healthcare Chatbot</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="chat-container">
+        <header>
+            <h1 class="header-title"> Healthcare Assistant <span class="emoji-highlight">🩺</span></h1>
+            <p>Ready to analyze your Health <span class="emoji-highlight">⚕️</span>.</p>
+        </header>
+        <div class="chat-history" id="chat-history">
+            <div class="message bot-message">
+                Hello! I am the Healthcare Bot 🤖 . Before we begin, **What is your name?**
+            </div>
+        </div>
+        <div class="chat-input">
+            <input type="text" id="user-input" placeholder="Type your message here..." onkeydown="if(event.key === 'Enter') sendMessage()">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        // Global variable to keep track of the currently speaking message utterance
+        let currentUtterance = null;
+
+        // --- NEW VOICE CONTROL FUNCTION ---
+        function toggleSpeech(iconElement, message) {
+            if ('speechSynthesis' in window) {
+                // 1. Stop any currently speaking message
+                window.speechSynthesis.cancel();
+                
+                // 2. Reset all icons to 'off' state (🔈)
+                document.querySelectorAll('.speaker-icon').forEach(icon => {
+                    icon.innerHTML = '🔈'; // Default muted icon
+                    icon.classList.remove('active-speech');
+                });
+
+                // If the message that was clicked was already active, we just stopped it, so return.
+                if (iconElement.classList.contains('active-speech')) {
+                    return; 
+                }
+
+                // --- START NEW SPEECH ---
+                // Remove any markdown (like **bold**) for clean speech
+                const cleanText = message.replace(/\*\*(.*?)\*\*/g, '$1');
+                currentUtterance = new SpeechSynthesisUtterance(cleanText);
+
+                // On Start: Mark this icon as active and show the 'speaking' icon (🔊)
+                currentUtterance.onstart = function() {
+                    iconElement.classList.add('active-speech');
+                    iconElement.innerHTML = '🔊'; 
+                };
+                
+                // On End/Cancel: Reset the icon when the message finishes or is stopped
+                currentUtterance.onend = currentUtterance.onpause = currentUtterance.onerror = currentUtterance.onboundary = function() {
+                    iconElement.classList.remove('active-speech');
+                    iconElement.innerHTML = '🔈';
+                };
+
+                currentUtterance.rate = 1.0; 
+                window.speechSynthesis.speak(currentUtterance);
+            } else {
+                console.warn("Text-to-Speech not supported in this browser.");
+            }
+        }
+        // ----------------------------------------
+
+
+        function sendMessage() {
+            const userInput = document.getElementById('user-input');
+            const userMessage = userInput.value.trim();
+            
+            if (userMessage === '') return;
+
+            // 1. Display user message
+            addMessageToHistory(userMessage, 'user');
+            userInput.value = ''; // Clear input
+
+            // 2. Send message to the backend server via the '/get_response' API
+            fetch('/get_response', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ message: userMessage })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // 3. Display bot response
+                addMessageToHistory(data.response, 'bot');
+                userInput.focus(); // <--- ADD THIS LINE
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                const errorMessage = 'Oops! Connection error. Please check the backend server.';
+                addMessageToHistory(errorMessage, 'bot');
+            });
+        }
+
+        function addMessageToHistory(message, sender) {
+            const history = document.getElementById('chat-history');
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message', `${sender}-message`);
+            
+            // --- KEY CHANGE: Add the speaker icon for bot messages ---
+            if (sender === 'bot') {
+                const iconSpan = document.createElement('span');
+                iconSpan.classList.add('speaker-icon');
+                iconSpan.innerHTML = '🔈'; // Default muted icon
+                
+                // Set the onclick handler to call the toggleSpeech function
+                // We pass 'this' (the span element) and the message text
+                iconSpan.setAttribute('onclick', `toggleSpeech(this, \`${message.replace(/`/g, '\\`')}\`)`);
+
+                // Append message content and then the icon
+                messageDiv.innerHTML = message;
+                messageDiv.appendChild(iconSpan);
+            } else {
+                // User messages are just text
+                messageDiv.innerHTML = message;
+            }
+
+            history.appendChild(messageDiv);
+            history.scrollTop = history.scrollHeight;
+        }
+    </script>
+</body>
+</html>
